@@ -5,13 +5,13 @@
 ## 仓库内容
 
 ```text
-Codex/       # Codex 全局 AGENTS.md 和个人 Skills
+Codex/       # Codex 全局 AGENTS.md 和个人 Skills（排除 .system）
 Thyroid/     # Thyroid 项目的上下文
 Unity-dc/    # Unity-dc 项目的上下文
 scripts/     # 同步工具
 ```
 
-每个同步的 Skill 会保留其完整目录，包括 `SKILL.md`、`references/`、`scripts/`、`assets/` 等附属文件。
+每个同步的 Skill 会保留其完整目录，包括 `SKILL.md`、`references/`、`scripts/`、`assets/` 等附属文件。Codex 的 `.system` 目录及其内容永不参与同步。
 
 ## 本地配置
 
@@ -21,7 +21,8 @@ scripts/     # 同步工具
 
 - `name`：仓库中的目标目录名；
 - `agentsPath`：对应的 `AGENTS.md`；
-- `skillRoots`：Skill 父目录列表。父目录下的每个子目录视为一个完整 Skill。
+- `skillRoots`：Skill 父目录列表。父目录下的每个子目录视为一个完整 Skill；名为 `.system` 的目录始终跳过；
+- `skillNames`：可选的 Skill 白名单。配置后只同步列出的名称，未列出的新增 Skill 默认不会上传；新增 Skill 需要先加入本机 `sync.config.local.json` 的对应列表。
 
 ## 安全规则
 

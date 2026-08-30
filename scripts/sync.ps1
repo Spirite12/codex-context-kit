@@ -107,6 +107,21 @@ function Get-SafeSkillPlans {
 
     $plans = @()
     $seenNames = @{}
+    $allowedNames = @()
+    $skillNamesProperty = $Source.PSObject.Properties['skillNames']
+    if ($null -ne $skillNamesProperty) {
+        $allowedNames = @($Source.skillNames | ForEach-Object { [string]$_ })
+        if ($allowedNames.Count -eq 0) {
+            throw "来源 $($Source.name) 配置了 skillNames，但列表为空。"
+        }
+
+        foreach ($allowedName in $allowedNames) {
+            if ([string]::IsNullOrWhiteSpace($allowedName) -or $allowedName -notmatch '^[A-Za-z0-9_-]+$') {
+                throw "来源 $($Source.name) 的 skillNames 必须使用仅含英文、数字、下划线或连字符的名称。"
+            }
+        }
+    }
+
     foreach ($rootPath in @($Source.skillRoots)) {
         if (-not (Test-Path -LiteralPath $rootPath -PathType Container)) {
             Write-Warning "Skill 根目录不存在，已跳过：$rootPath"
@@ -115,6 +130,14 @@ function Get-SafeSkillPlans {
 
         $candidates = Get-ChildItem -LiteralPath $rootPath -Directory -Force
         foreach ($candidate in $candidates) {
+            if ($candidate.Name -eq '.system') {
+                continue
+            }
+
+            if ($allowedNames.Count -gt 0 -and $allowedNames -notcontains $candidate.Name) {
+                continue
+            }
+
             $skillDefinitions = @(Get-ChildItem -LiteralPath $candidate.FullName -Recurse -File -Filter 'SKILL.md' -Force)
             if ($skillDefinitions.Count -eq 0) {
                 continue
