@@ -1,0 +1,8 @@
+# 机器相关的来源路径与同步状态不得提交
+sync.config.local.json
+sync.state.local.json
+
+# 同步过程与本地工具产物
+.sync-staging/
+*.log
+

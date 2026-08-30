@@ -1,0 +1,4 @@
+interface:
+  display_name: "甲状腺项目导航"
+  short_description: "按任务加载甲状腺微信小程序的项目资料、当前状态和工程约束"
+  default_prompt: "使用 $thyroid-project 定位本次任务所需的项目文档、代码与验证入口。"
