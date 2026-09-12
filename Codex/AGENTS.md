@@ -30,6 +30,8 @@
 1. 用户明确要求启用多 Agent；
 2. 项目 AGENTS.md 明确规定可启用多 Agent 调度，且当前任务符合其中定义的触发条件。
 
+多 Agent 调度仅允许由根 Agent 发起。根 Agent 指直接接收用户请求并负责整合结果的 Agent；子 Agent 只执行父 Agent 分配的边界任务，不得再次创建、委派或调用其他 Agent。子 Agent 如发现需要拆分，应向父 Agent 返回建议，由根 Agent 决定是否继续调度。
+
 ### Agent 调度规范
 
 每次发起多 Agent 调度时，在创建子 Agent 前 以及 回复时须输出：
