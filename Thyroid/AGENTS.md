@@ -67,6 +67,29 @@
 - 服务端部署、微信代码上传、体验版、提审和正式发布是独立门禁，只执行用户明确授权的那一项。服务端部署不自动修改 `api.ts` 或 `urlCheck`。
 - 微信上传前必须核对 `miniprogram/config/api.ts` 的 `USE_LOCAL_DEVELOPMENT_API=false` 和 `project.private.config.json` 的 `setting.urlCheck=true`，并使用项目脚本确认生产模式。
 
+### 本地/生产 API 切换速查
+
+- `USE_LOCAL_DEVELOPMENT_API=true` 使用 `LOCAL_DEVELOPMENT_API_BASE_URL`；设为 `false` 使用生产 API。这个开关不会修改本地地址。
+- `set-api-mode.ps1 -Mode Local` 只切换 API 模式、开发者工具 `urlCheck` 和模式标记，不会自动把本地地址改成模拟器可用的 `localhost:3000`；切换后必须检查 `LOCAL_DEVELOPMENT_API_BASE_URL` 的实际值。
+- 优先使用脚本同步开关和开发者工具 `urlCheck`：
+
+  ```powershell
+  & '.local-server\set-api-mode.ps1' -Mode Local
+  & '.local-server\set-api-mode.ps1' -Mode Production -ConfirmProduction
+  ```
+
+- 开发者工具模拟器：用 `-Mode Local`，默认将 `LOCAL_DEVELOPMENT_API_BASE_URL` 设为 `http://localhost:3000`（模拟器中的 `localhost` 指开发电脑）；改地址时只改该常量右侧字符串，然后重新编译。先启动 `.local-server\start-local-server.ps1`，再执行 `Invoke-RestMethod http://localhost:3000/health`，预期返回 `status=ok`、`database=ok`。
+- 模拟器登录失败排查：若 Console 出现 `ERR_CONNECTION_REFUSED`，尤其是 `/Download/app-version.json` 请求失败，或页面只显示“登录失败，请稍后重试”，先归类为本地服务未监听，不要先修改微信登录代码；确认 API 地址、启动服务和 `/health` 后，再检查 `/api/v1/auth/wechat-login` 的网络/服务端错误。启动脚本固定 `HOST=127.0.0.1`，默认 `PORT=3000`，必须与模拟器地址一致。
+- 本地服务启动失败：若提示 `WECHAT_APP_ID` 与 `WECHAT_APP_SECRET` 必须同时配置，检查 `.local-server\local.env.ps1` 中两项是否都非空且对应当前小程序；不得在日志或回复中输出值。若 Node/tsx 读取 `server\node_modules` 报 `EPERM`，不要删除 `node_modules`、锁文件或未知的 `index.lock`，改用非沙箱的 Windows PowerShell/已授权本机终端重试，仍失败时报告权限阻塞。
+- 手机真机：仍用 `-Mode Local`，但该地址必须改为手机可访问的电脑局域网地址/端口；不能使用 `localhost` 或 `127.0.0.1`。先验证电脑和手机都能访问 `/health`，结束后恢复模拟器地址并关闭临时转发/防火墙。
+- 切换后核对状态；本地模式确认数据库仍为 `thyroid_local`：
+
+  ```powershell
+  & '.local-server\show-environment-status.ps1'
+  ```
+
+- 以上只改本地小程序配置和开发者工具设置，不会部署服务端、上传微信代码或操作线上数据库。
+
 ### 版本规则
 
 - Git Tag 与微信上传版本使用相同的三段式版本号，Tag 不加 `v`；Tag 必须指向实际上传代码的 Commit。
