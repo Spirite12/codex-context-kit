@@ -1,4 +1,4 @@
 interface:
   display_name: "微信小程序全流程开发"
-  short_description: "按项目架构完成开发、部署与官方开发者工具 QA"
-  default_prompt: "使用 $wechat-miniprogram 先判断项目是纯小程序还是全栈，再按阶段策划完成适用的前端、可选服务端与部署，并编排官方 wechatide-skill 执行定向测试和固定回归。"
+  short_description: "按任务类型完成微信小程序开发、验证与发布准备"
+  default_prompt: "使用 $wechat-miniprogram 先判断任务类型和项目架构，按需读取项目规则与引用，只推进到用户授权的开发、QA、部署或发布阶段，并核对微信外部能力的字段契约与发布就绪状态。"
