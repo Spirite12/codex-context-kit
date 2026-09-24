@@ -4,7 +4,7 @@
 
 ## 顶层目录
 
-- `Assets/AddressableAssetsData`：Addressable 资源数据目录，默认不读、不改。
+- `Assets/AddressableAssetsData/`：Addressables 分组、Profile、构建器和资源地址；资源加载、打包或热更任务需要读取核对，生成结果优先通过 Unity 工具更新，避免手改 GUID。
 - `Assets/DCFrame/`：框架模块与工具代码，也是独立 Git 子模块；需同时关注父仓库记录版本与子模块当前版本。
 - `Assets/Docs/`：版本、规范、记录等相关文档。
 - `Assets/Game/`：业务开发文件夹。
@@ -15,18 +15,11 @@
 
 ## 读写边界
 
-以下标识用于说明目录权限：
-
-- ①：只读，不改。
-- ②：业务开发模式下，只可读。
-- ③：框架开发模式下，只可读。
-
-相关目录如下：
-
-- `Assets/DCFrame/`：②
-- `Assets/Docs/`：②、③
-- 任意 `Editor/` 目录：②
-- `Assets/Plugins/`：①
+- 修改授权以用户本次请求和根 `AGENTS.md` 为准；本 Skill 不额外禁止已授权的文档或业务 Editor 工具修改。
+- `Assets/DCFrame/` 整体默认只读；包括 Foundation、Utility 和 Editor，修改均需开发者明确授权。
+- `Assets/Plugins/` 只做依赖、版本与接入概览；未获插件修改授权时不修改其实现。
+- `Assets/Docs/` 按本次文档任务范围修改；ToDo 的新增与清理遵循根 AGENTS.md。
+- 业务 Editor 代码可按任务新增到业务侧 Editor 目录；存在父级 asmdef 时检查 Editor 专用程序集边界。
 
 ## 业务入口
 
@@ -41,6 +34,12 @@
 - `Assets/Game/Scripts/Table/`：生成后的表代码目录。
 - `Assets/Game/Table/`：CSV 配表目录。
 - `Assets/Game/Settings/Addressables/AAHotUpdateSettings.json`：本地热更开关配置；打包前由 Addressables 工具同步。
+
+## 模板状态与程序集
+
+- 先读 `ProjectSettings/ProjectVersion.txt` 与 `Packages/manifest.json` / `packages-lock.json`，以当前锁定版本检查 API；不自动升级依赖。
+- `Assets/Game/Scripts/Ctrl/` 已有 `ADF.Game.Ctrl.asmdef`，但 `UIConst.outPutCtrlHeadPath` 当前指向 `Scripts/Script/`。生成前核对实际落点和程序集引用，不把两者混写成同一目录。
+- `TableRules.asset`、`CacheInit.cs`、本地化表和业务事件允许处于模板占位状态；文件存在不代表完成配置。报告时区分框架能力、项目接入状态和产品需求。
 
 ## 框架入口
 

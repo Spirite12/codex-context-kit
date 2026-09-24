@@ -98,7 +98,8 @@
         "Assets/DCFrame/Editor/Modules/Table/**",
         "Assets/DCFrame/Editor/Foundation/CodexBatchVerify.cs",
         ".agents/skills/core/scripts/run_unity_task.py",
-        ".agents/skills/core/references/table.md"
+        ".agents/skills/core/references/table.md",
+        "Tools/ScriptTemplates/Table*.txt"
       ],
       "documents": [
         ".agents/skills/core/references/table.md",
@@ -149,7 +150,14 @@
         "Assets/DCFrame/Modules/Cache/**",
         "Assets/DCFrame/Modules/TextFilter/**",
         "Assets/DCFrame/Modules/Addressable/**",
-        ".agents/skills/core/references/ui.md"
+        ".agents/skills/core/references/ui.md",
+        "Assets/Game/Scripts/Ctrl/**",
+        "Assets/DCFrame/Editor/Modules/UIManager/**",
+        "Assets/DCFrame/Editor/Utility/UISystemInitEditor.cs",
+        "Assets/DCFrame/UGUI/**",
+        "Assets/DCFrame/Editor/UGUI/**",
+        "Tools/ScriptTemplates/Ctrl*.txt",
+        "Tools/ScriptTemplates/Mono*.txt"
       ],
       "documents": [
         ".agents/skills/core/references/ui.md"
@@ -157,6 +165,23 @@
       "checks": [
         "确认 UI 联动模块、脚本落点、接入顺序与开发者手工边界仍然正确。",
         "确认 RedTip、Event、Addressable、Cache 与 AudioToolkit 的入口说明没有过期。"
+      ]
+    },
+    {
+      "id": "verification",
+      "summary": "审查、自动化验证入口或验证约束发生变化。",
+      "triggers": [
+        ".agents/skills/core/references/verification.md",
+        ".agents/skills/core/scripts/**",
+        "AGENTS.md",
+        "Assets/DCFrame/Editor/Foundation/CodexBatchVerify.cs"
+      ],
+      "documents": [
+        ".agents/skills/core/references/verification.md",
+        ".agents/skills/core/SKILL.md"
+      ],
+      "checks": [
+        "核对实际可用验证入口，区分静态扫描、dry-run、Unity 编译和 Player 验收。"
       ]
     }
   ]

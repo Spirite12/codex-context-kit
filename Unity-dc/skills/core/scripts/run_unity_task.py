@@ -171,21 +171,21 @@ def validate_localize_root(project_path: Path) -> None:
 def has_batch_entry(project_path: Path, method_name: str) -> bool:
     """确认项目源码中存在指定的 Unity 批处理静态入口。"""
     class_name, entry_name = method_name.rsplit(".", maxsplit=1)
-    class_pattern = re.compile(rf"\bclass\s+{re.escape(class_name)}\b")
-    method_pattern = re.compile(
-        rf"\bpublic\s+static\s+(?:async\s+)?[\w<>,.?\[\]]+\s+{re.escape(entry_name)}\s*\("
-    )
-    assets_path = project_path / "Assets"
-    if not assets_path.is_dir():
+    source_file = project_path / "Assets/DCFrame/Editor/Foundation/CodexBatchVerify.cs"
+    if not source_file.is_file():
         return False
 
-    for source_file in assets_path.rglob("*.cs"):
-        if any(part.lower() == "plugins" for part in source_file.parts):
-            continue
-        source_text = source_file.read_text(encoding="utf-8")
-        if class_pattern.search(source_text) and method_pattern.search(source_text):
-            return True
-    return False
+    source_text = source_file.read_text(encoding="utf-8-sig")
+    # 去除注释及字符串，避免示例文本被误认为可执行声明；最终仍需 Unity 编译。
+    source_text = re.sub(
+        r'//[^\n]*|/\*[\s\S]*?\*/|@"(?:""|[^"])*"|"(?:\\.|[^"\\])*"',
+        " ", source_text,
+    )
+    class_pattern = re.compile(rf"\bpublic\s+static\s+class\s+{re.escape(class_name)}\b")
+    method_pattern = re.compile(
+        rf"\bpublic\s+static\s+void\s+{re.escape(entry_name)}\s*\(\s*\)\s*\{{"
+    )
+    return bool(class_pattern.search(source_text) and method_pattern.search(source_text))
 
 
 def validate_batch_entries(project_path: Path, task_names: tuple[str, ...]) -> None:
@@ -270,7 +270,10 @@ def main() -> int:
             print(f"[run_unity_task] 任务失败: {task_name}，退出码：{exit_code}", file=sys.stderr)
             return exit_code
 
-    print("[run_unity_task] 全部任务执行完成。")
+    if args.dry_run:
+        print("[run_unity_task] dry-run 检查完成；未启动 Unity，未生成资源。")
+    else:
+        print("[run_unity_task] 全部任务执行完成。")
     return 0
 
 

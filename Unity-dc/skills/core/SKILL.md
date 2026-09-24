@@ -1,6 +1,6 @@
 ---
-name: Core
-description: 用于阅读工程结构、编写和完善代码，以及在功能开发时需要调用
+name: core
+description: 阅读、开发或评审本 Unity DC 工程时使用；定位业务与 DCFrame 边界，按需接入 UI、配表、本地化及现有批处理，并核对验证结果。
 ---
 
 # Core Skill 入口规范
@@ -20,6 +20,13 @@ description: 用于阅读工程结构、编写和完善代码，以及在功能�
 - 仓库级通用规则与完成定义不在本 Skill 内重复维护；PR 前 Core 检查流程由根目录 `AGENTS.md` 约束，通用 GitHub 操作由系统级 `github-workflow` Skill 执行。
 - `Assets/DCFrame/` 是 Git 子模块；业务任务默认不修改其源码。涉及框架事实时，应同时报告父仓库记录的提交与当前子模块提交是否一致。
 
+## 按任务选择路径
+
+- 工程审查：先按 `references/verification.md` 建立阅读清单，区分源码审查、资源引用扫描、插件概览和未验证项；报告缺陷的触发条件与代码依据。
+- 功能开发：从 `project-map.md` 定位模块，再读取对应专题；只接入需求涉及的表、本地化、缓存、红点或音效，不为补齐清单新增功能。
+- Skill 更新：以当前源码、配置和场景为事实依据，补丁式修改受影响专题；新增专题时同步本页索引及 `scripts/self-check.json`。
+- 完成后按 `references/verification.md` 选择与改动风险匹配的检查。目录存在、脚本 dry-run、自检退出码均不能替代 Unity 执行或 Player 验收。
+
 ## 业务开发约束
 
 - 文本统一从 `table` 表读取，并在对应的 `Localization` 下访问。
@@ -30,6 +37,8 @@ description: 用于阅读工程结构、编写和完善代码，以及在功能�
 - 自检注册表：`.agents/registries/skill-self-check.json`
 - `core` 自检配置：`.agents/skills/core/scripts/self-check.json`
 - `core` 对外描述配置：`.agents/skills/core/agents/openai.yaml`
+- 执行方式：在仓库根运行 `python .agents/scripts/skill_self_check.py`；需要显式指定范围时，按实际文件逐个传入 `--path <路径>`；该参数会替代自动收集，须包含完整待审范围，仅传子模块根目录不保证命中其全部专题规则。父仓库通常只显示子模块路径，不能据此认定已检查子模块内部全部改动。
+- 此脚本是改动到文档的路由器，不检查事实正确性；`--strict` 仅检查命中 Skill 是否至少有一份相关文档出现在改动中，不能作为逐条核验结果，也不应为通过它而制造无意义文档修改。
 - 当 PR 前检查命中 `core` 相关规则时，优先补丁式更新当前文档或对应 `references/*.md`，不整篇重写。
 
 ## scripts 索引
@@ -37,11 +46,12 @@ description: 用于阅读工程结构、编写和完善代码，以及在功能�
 - Unity 自动化入口：`scripts/run_unity_task.py`
   - 用途：通过 Unity 命令行调用项目提供的 `CodexBatchVerify` 批处理适配器，执行导表、本地化资源生成或其初始化顺序。
   - 适配器位置：`Assets/DCFrame/Editor/Foundation/CodexBatchVerify.cs`；该文件位于 DCFrame 子模块，修改后需同步核对子模块提交与父仓库指针。
-  - 前置条件：项目必须实现脚本映射的静态入口；脚本会先扫描并验证该适配器，缺失时不得启动 Unity，也不得把未执行的生成步骤报告为已完成。
-  - 使用提示：适配器存在时，涉及 `TableEditor.PackageConfig()`、`LocalizeEditor.CreateLocalizeAsset()` 或首次 Localize 初始化可优先调用该脚本；适配器缺失时，由开发者在 Unity Editor 的既有工具入口执行，或先补齐适配器。
+  - 前置条件：项目必须实现脚本映射的静态入口；脚本会先在约定路径静态检查该适配器的无参 `public static void` 声明（不等同于 C# 编译），缺失时不得启动 Unity，也不得把未执行的生成步骤报告为已完成。
+  - 使用提示：适配器存在时，涉及 `TableEditor.PackageConfig()`、`LocalizeEditor.CreateLocalizeAsset()` 或首次 Localize 初始化可优先调用该脚本；适配器缺失时，由开发者在 Unity Editor 的既有工具入口执行，或在获得框架修改授权后补齐适配器。
 
 ## references 索引
 
+- 审查范围、验证方式与交付证据：`references/verification.md`
 - 工程目录与模块入口：`references/project-map.md`
 - 框架层说明：`references/framework.md`
 - UI / 红点 / 音效：`references/ui.md`
