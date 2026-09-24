@@ -268,7 +268,14 @@ else {
 }
 
 if ($changed) {
-    $message = 'sync: ' + (Get-Date -Format 'yyyy-MM-dd')
+    $commitMessageTool = Join-Path $RepoRoot 'Codex\skills\github-workflow\scripts\commit-message.ps1'
+    if (-not (Test-Path -LiteralPath $commitMessageTool -PathType Leaf)) {
+        throw "找不到 GitHub Workflow Commit message 工具：$commitMessageTool"
+    }
+
+    $message = & $commitMessageTool -RepositoryRoot $RepoRoot -Type 'chore' -Subject '同步 Codex 上下文'
+    & $commitMessageTool -RepositoryRoot $RepoRoot -Validate $message | Out-Null
+
     & git -C $RepoRoot commit -m $message
     if ($LASTEXITCODE -ne 0) {
         throw 'git commit 失败。'
