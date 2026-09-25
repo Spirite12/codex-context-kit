@@ -218,6 +218,26 @@ foreach ($source in @($config.sources)) {
     }
 }
 
+$githubWorkflowSkills = @(
+    foreach ($sourcePlan in $sourcePlans) {
+        if ($sourcePlan.Name -ne 'Codex') {
+            continue
+        }
+        foreach ($skill in $sourcePlan.Skills) {
+            if ($skill.Name -eq 'github-workflow') {
+                $skill
+            }
+        }
+    }
+)
+if ($githubWorkflowSkills.Count -ne 1) {
+    throw 'Codex 来源中的 github-workflow Skill 必须唯一且可用。'
+}
+$commitMessageTool = Join-Path $githubWorkflowSkills[0].Path 'scripts\commit-message.ps1'
+if (-not (Test-Path -LiteralPath $commitMessageTool -PathType Leaf)) {
+    throw "找不到真实 github-workflow Skill 中的 Commit message 工具：$commitMessageTool"
+}
+
 foreach ($sourcePlan in $sourcePlans) {
     $destination = Join-Path $RepoRoot $sourcePlan.Name
     if (Test-Path -LiteralPath $destination) {
@@ -268,11 +288,6 @@ else {
 }
 
 if ($changed) {
-    $commitMessageTool = Join-Path $RepoRoot 'Codex\skills\github-workflow\scripts\commit-message.ps1'
-    if (-not (Test-Path -LiteralPath $commitMessageTool -PathType Leaf)) {
-        throw "找不到 GitHub Workflow Commit message 工具：$commitMessageTool"
-    }
-
     $message = & $commitMessageTool -RepositoryRoot $RepoRoot -Type 'chore' -Subject '同步 Codex 上下文'
     & $commitMessageTool -RepositoryRoot $RepoRoot -Validate $message | Out-Null
 
